@@ -73,7 +73,7 @@ CORS(app, resources={r"/api/*": {"origins": [
 MODEL_DIR = "./model"
 
 regression_pipeline = joblib.load(
-    os.path.join(MODEL_DIR, "lasso_regressor_for_sme_revenue.joblib")
+os.path.join(MODEL_DIR, "20261104_133324_ridge_regressor_for_retail_sales.joblib")
 )
 
 classification_pipeline = joblib.load(
@@ -125,7 +125,7 @@ print("All the four artifacts have been loaded. The API is ready.")
 # business (fully online -- foot traffic is structurally not applicable, not
 # missing at random). The pipeline's own imputer handles the null value; nothing
 # in this file needs to know that rule.
-@app.route("/api/v1/models/sme-revenue-regressor/predictions", methods=["POST"])
+@app.route("/api/v1/models/retail-sales-regressor/predictions", methods=["POST"])
 def predict_revenue():
     payload = request.get_json()
 
@@ -143,8 +143,8 @@ def predict_revenue():
     predicted_revenue_kes = float(np.expm1(predicted_log_revenue))
 
     return jsonify({
-        "predicted_monthly_revenue_kes": round(predicted_revenue_kes, 2),
-        "model": "Lasso Regressor",
+        "predicted_daily_sales_revenue_kes": round(predicted_revenue_kes, 2),
+        "model": "Ridge Regression",
     })
 
 
@@ -279,4 +279,4 @@ if __name__ == "__main__":
 
     # HTTPS/TLS alternative for local development (requires a self-signed
     # certificate; see app_server_reverse_proxy_server_setup.md):
-    # app.run(debug=False, ssl_context=("cert.pem", "key.pem"))
+    # app.run(debug=False, ssl_context=("certs.pem", "key.pem"))

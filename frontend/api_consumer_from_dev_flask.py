@@ -58,20 +58,17 @@ def call_endpoint(path, payload):
 # 1. REGRESSION -- predict monthly revenue (KES) for an SME
 
 regression_payload = {
-    "sector": "Technology", "county": "Nairobi", "quarter": "Q3",
-    "business_age_years": 4.5, "num_employees": 12,
-    "owner_education_level": "Secondary",
-    "monthly_marketing_spend_kes": 45000,
-    "avg_daily_foot_traffic": None,  # Technology sector: structurally not applicable
-    "online_presence_score": 78.0, "loan_amount_kes": 250000,
-    "interest_rate_pct": 14.5, "inflation_rate_pct": 6.5,
-    "competitor_density": 5, "customer_satisfaction_score": 4.2,
+    "promotions_active": 1,
+    "footfall_count": 250,
+    "avg_basket_size_kes": 1500,
+    "store_format": "Supermarket",
+    "location_type": "Residential",
+    "store_size_category": "Medium"
 }
 
-result = call_endpoint("/api/v1/models/sme-revenue-regressor/predictions", regression_payload)
+result = call_endpoint("/api/v1/models/retail-sales-regressor/predictions", regression_payload)
 if result is not None:
-    print("Predicted monthly revenue (KES) =", result["predicted_monthly_revenue_kes"])
-
+    print("Predicted daily sales revenue (KES) =", result["predicted_daily_sales_revenue_kes"])
 print("-" * 60)
 
 
