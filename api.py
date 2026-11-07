@@ -87,7 +87,7 @@ clustering_scaler = clustering_artifact["scaler"]
 clustering_kmeans = clustering_artifact["kmeans"]
 
 arm_artifact = joblib.load(
-    os.path.join(MODEL_DIR, "apriori_recommendation_rules.joblib")
+    os.path.join(MODEL_DIR, "c5_apriori_rules.joblib")
 )
 recommendation_lookup = arm_artifact["recommendation_lookup"]
 sku_lookup = arm_artifact["sku_lookup"]
@@ -216,15 +216,6 @@ def predict_customer_segment():
 
 # 4. ASSOCIATION RULE MINING -- recommend products for a shopping cart
 
-# Sample request (cURL):
-#   curl -X POST http://127.0.0.1:5000/api/v1/models/ecommerce-recommender/predictions \
-#        -H "Content-Type: application/json" \
-#        -d '{"cart": ["H06", "H07"]}'
-#
-#   curl -X POST http://127.0.0.1:5000/api/v1/models/ecommerce-recommender/predictions \
-#        -H "Content-Type: application/json" \
-#        -d '{"cart": ["P04", "P01"]}'
-#
 # Note: there is no scikit-learn ".predict()" here -- the mined association
 # rules were precomputed into a lookup dictionary
 # (antecedent SKU-set -> ranked candidate consequents)
@@ -234,19 +225,33 @@ def predict_customer_segment():
 # for the rules again.
 @app.route("/api/v1/models/ecommerce-recommender/predictions", methods=["POST"])
 def recommend_products():
-    payload = request.get_json()
-    cart = set(payload.get("cart", []))
-    top_n = int(payload.get("top_n", 3))
+    payload = request.get_json(silent=True)
+    if not isinstance(payload, dict):
+        return jsonify({"error": "Expected a JSON object."}), 400
 
+    items = payload.get("cart")
+    if not isinstance(items, list) or any(
+        not isinstance(item, str) or not item.strip() for item in items
+    ):
+        return jsonify({"error": "cart must be a list of nonblank item strings."}), 400
+
+    top_n = payload.get("top_n", 3)
+    if type(top_n) is not int or top_n < 1:
+        return jsonify({"error": "top_n must be a positive integer."}), 400
+
+    cart = {item.strip() for item in items}
     candidates = {}
     for antecedent, consequent_list in recommendation_lookup.items():
         if antecedent.issubset(cart):
             for sku, confidence, lift in consequent_list:
-                if sku not in cart:
-                    if sku not in candidates or confidence > candidates[sku][0]:
-                        candidates[sku] = (confidence, lift)
+                score = (confidence, lift)
+                if sku not in cart and score > candidates.get(sku, (-1, -1)):
+                    candidates[sku] = score
 
-    ranked = sorted(candidates.items(), key=lambda item: item[1][0], reverse=True)[:top_n]
+    ranked = sorted(
+        candidates.items(),
+        key=lambda item: (-item[1][0], -item[1][1], item[0]),
+    )[:top_n]
     recommendations = [
         {
             "sku": str(sku),
@@ -260,7 +265,7 @@ def recommend_products():
     return jsonify({
         "cart": sorted(cart),
         "recommendations": recommendations,
-        "model": "Apriori association rules, cleaned + precomputed lookup",
+        "model": "C5 Apriori association rules",
     })
 
 

@@ -116,7 +116,7 @@ print("-" * 60)
 # 4. ASSOCIATION RULE MINING -- recommend products for a shopping cart
 
 recommendation_payload = {
-    "cart": ["P04", "P01"],
+    "cart": ["S01", "S03"],
     "top_n": 3,
 }
 
