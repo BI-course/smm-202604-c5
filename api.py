@@ -153,7 +153,7 @@ def predict_revenue():
 # 2. CLASSIFICATION -- predict SME credit risk category (Low/Medium/High)
 
 # Sample request (cURL):
-#   curl -X POST http://127.0.0.1:5000/api/v1/models/   corporate-distress-classifier/predictions \
+#   curl -X POST http://127.0.0.1:5000/api/v1/models/corporate-distress-classifier/predictions \
 #        -H "Content-Type: application/json" \
 #        -d '{"sector": "Retail", "county": "Nairobi", "quarter": "Q2",
 #             "loan_purpose": "Working Capital", "owner_education_level": "Secondary",
@@ -170,7 +170,7 @@ def predict_revenue():
 # more often unsecured (structural missingness, not missing at random) --
 # again, the pipeline's imputer + missingness indicator already handles this
 # internally; this route does not need special code for it.
-@app.route("/api/v1/models/   corporate-distress-classifier/predictions", methods=["POST"])
+@app.route("/api/v1/models/corporate-distress-classifier/predictions", methods=["POST"])
 def predict_credit_risk():
     payload = request.get_json()
     input_row = pd.DataFrame([payload])
@@ -185,7 +185,7 @@ def predict_credit_risk():
             str(label): round(float(prob), 4)
             for label, prob in zip(class_labels, predicted_probabilities)
         },
-                "model": "Logistic Regression (tuned, ADASYN at training only)",
+        "model": "Random Forest (tuned, SMOTE at training only)",
     })
 
 
