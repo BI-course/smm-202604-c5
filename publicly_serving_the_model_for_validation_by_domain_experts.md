@@ -600,7 +600,7 @@ Steps:
     | Regression            | `/api/v1/models/sme-revenue-regressor/predictions`      |
     | Classification        | `/api/v1/models/sme-credit-risk-classifier/predictions` |
     | Clustering            | `/api/v1/models/mall-customer-segmenter/predictions`    |
-    | Recommendations (ARM) | `/api/v1/models/ecommerce-recommender/predictions`      |
+    | Recommendations (ARM) | `/api/v1/models/streaming-recommender/predictions`      |
 
     cURL example 1 (regression):
 
@@ -644,9 +644,9 @@ Steps:
     cURL example 4 (recommendations):
 
     ```shell
-    curl -X POST https://your-service.onrender.com/api/v1/models/ecommerce-recommender/predictions \
+    curl -X POST https://your-service.onrender.com/api/v1/models/streaming-recommender/predictions \
         -H "Content-Type: application/json" \
-        -d '{"cart": ["H06", "H07"], "top_n": 3}'
+        -d '{"cart": ["S01", "S03"], "top_n": 3}'
     ```
 
 ## Expected Challenges

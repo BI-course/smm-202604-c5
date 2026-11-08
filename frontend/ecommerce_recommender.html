@@ -78,11 +78,11 @@
     <a class="back-link" href="index.html">&larr; All endpoints</a>
     <span class="badge">Association Rules</span>
     <h1>Shopping Cart Recommender</h1>
-    <p class="lead">Calls <code>POST /api/v1/models/ecommerce-recommender/predictions</code></p>
+    <p class="lead">Calls <code>POST /api/v1/models/streaming-recommender/predictions</code></p>
 
     <form id="predictForm">
-      <label for="cart">Cart SKUs <span class="hint">(comma-separated, e.g. P01, P04 or H06, H07)</span></label>
-      <input type="text" id="cart" value="P01, P04" required>
+      <label for="cart">Cart SKUs <span class="hint">(comma-separated, e.g. S01, S03)</span></label>
+      <input type="text" id="cart" value="S01, S03" required>
 
       <label for="top_n">Number of Recommendations</label>
       <input type="number" id="top_n" value="3" min="1" max="10" required>
@@ -99,9 +99,9 @@
   const isSecure = protocol === "https:";
 
   const API_ORIGIN = `${isSecure ? "https" : "http"}://${hostname}:${isSecure ? "443" : "5000"}`;
-  const API_URL = `${API_ORIGIN}/api/v1/models/ecommerce-recommender/predictions`;
+  const API_URL = `${API_ORIGIN}/api/v1/models/streaming-recommender/predictions`;
 
-  // const API_URL = "http://127.0.0.1:5000/api/v1/models/ecommerce-recommender/predictions";
+  // const API_URL = "http://127.0.0.1:5000/api/v1/models/streaming-recommender/predictions";
 
   document.getElementById("predictForm").addEventListener("submit", async function (e) {
     e.preventDefault();

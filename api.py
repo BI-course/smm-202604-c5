@@ -214,15 +214,11 @@ def predict_customer_segment():
     })
 
 
-# 4. ASSOCIATION RULE MINING -- recommend products for a shopping cart
-
-# Note: there is no scikit-learn ".predict()" here -- the mined association
-# rules were precomputed into a lookup dictionary
-# (antecedent SKU-set -> ranked candidate consequents)
-# during the notebook's persistence stage. This
-# endpoint performs the exact same lookup+rank step a production recommender
-# microservice would perform on every incoming request; it does not mine
-# for the rules again.
+# 4. STREAMING RECOMMENDER
+# curl -X POST https://your-service.onrender.com/api/v1/models/streaming-recommender/predictions \
+#     -H "Content-Type: application/json" \
+#     -d '{"cart": ["S01", "S03"], "top_n": 3}'
+@app.route("/api/v1/models/streaming-recommender/predictions", methods=["POST"])
 @app.route("/api/v1/models/ecommerce-recommender/predictions", methods=["POST"])
 def recommend_products():
     payload = request.get_json(silent=True)

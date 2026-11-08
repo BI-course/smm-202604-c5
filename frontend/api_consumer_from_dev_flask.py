@@ -10,7 +10,7 @@ This mirrors api.py's four artifacts one-to-one:
     1. Regression        -- /api/v1/models/sme-revenue-regressor/predictions
     2. Classification     -- /api/v1/models/sme-credit-risk-classifier/predictions
     3. Clustering         -- /api/v1/models/mall-customer-segmenter/predictions
-    4. Association Rule   -- /api/v1/models/ecommerce-recommender/predictions
+    4. Association Rule   -- /api/v1/models/streaming-recommender/predictions
        Mining (ARM)
 
 Each call uses the same requests.post(..., json=payload, headers=headers)
@@ -120,7 +120,7 @@ recommendation_payload = {
     "top_n": 3,
 }
 
-result = call_endpoint("/api/v1/models/ecommerce-recommender/predictions", recommendation_payload)
+result = call_endpoint("/api/v1/models/streaming-recommender/predictions", recommendation_payload)
 if result is not None:
     print("Cart =", result["cart"])
     print("Recommendations =", result["recommendations"])
