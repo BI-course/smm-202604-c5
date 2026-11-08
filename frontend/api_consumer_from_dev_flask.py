@@ -26,22 +26,17 @@ import requests
 BASE_URL = "http://127.0.0.1:5000"
 
 HEADERS = {
-    'Content-Type': 'application/json',  # This header tells the server that the payload is in JSON format
-    'Accept': 'application/json',        # This header tells the server that the client expects a JSON response
-    'User-Agent': 'ServingMLModels-Client/1.0',  # Identifies the client application (useful for backend logging/debugging)
-    # 'Authorization': 'Bearer <token>',  # This can be used for token-based authentication if the API requires it
+    'Content-Type': 'application/json',  
+    'Accept': 'application/json',       
+    'User-Agent': 'ServingMLModels-Client/1.0', 
 }
 
 
 def call_endpoint(path, payload):
-    """Send one POST request to the given API path and return the parsed
-    JSON response, or None if the request failed. Centralizing the
-    try/except here means each of the four calls below gets identical
-    error handling without repeating it four times."""
     url = f"{BASE_URL}{path}"
     try:
         response = requests.post(url, json=payload, headers=HEADERS, timeout=10)
-        response.raise_for_status()  # Raises an HTTPError if the status code is 4xx or 5xx
+        response.raise_for_status() 
         return response.json()
 
     except requests.exceptions.HTTPError as e:
@@ -55,7 +50,7 @@ def call_endpoint(path, payload):
     return None
 
 
-# 1. REGRESSION -- predict monthly revenue (KES) for an SME
+# 1. REGRESSION 
 
 regression_payload = {
     "promotions_active": 1,
@@ -73,7 +68,7 @@ print("-" * 60)
 
 
 
-# 2. CLASSIFICATION -- predict SME credit risk category (Low/Medium/High)
+# 2. CLASSIFICATION 
 
 classification_payload = {
     "sector": "Retail", "county": "Nairobi", "quarter": "Q2",
@@ -97,7 +92,7 @@ print("-" * 60)
 
 
 
-# 3. CLUSTERING -- assign a new mall customer to an existing segment
+# 3. CLUSTERING 
 
 clustering_payload = {
     "Age": 27,
@@ -113,7 +108,7 @@ print("-" * 60)
 
 
 
-# 4. ASSOCIATION RULE MINING -- recommend products for a shopping cart
+# 4. ASSOCIATION RULE MINING 
 
 recommendation_payload = {
     "cart": ["S01", "S03"],
