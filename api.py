@@ -81,10 +81,12 @@ classification_pipeline = joblib.load(
 )
 
 clustering_artifact = joblib.load(
-    os.path.join(MODEL_DIR, "kmeans_mall_customer_segmentation.joblib")
+    os.path.join(MODEL_DIR, "kmeans_ecommerce_customer_segmentation.joblib")
 )
+clustering_imputer = clustering_artifact["imputer"]
 clustering_scaler = clustering_artifact["scaler"]
 clustering_kmeans = clustering_artifact["kmeans"]
+clustering_features = clustering_artifact["feature_order"]
 
 arm_artifact = joblib.load(
     os.path.join(MODEL_DIR, "apriori_recommendation_rules.joblib")
@@ -190,22 +192,24 @@ def predict_credit_risk():
 # 3. CLUSTERING -- assign a new mall customer to an existing segment
 
 # Sample request (cURL):
-#   curl -X POST http://127.0.0.1:5000/api/v1/models/mall-customer-segmenter/predictions \
-#        -H "Content-Type: application/json" \
-#        -d '{"Age": 27, "Annual Income (k$)": 45, "Spending Score (1-100)": 72}'
-#
+# curl -X POST http://127.0.0.1:5000/api/v1/models/ecommerce-customer-segmenter/predictions \
+#      -H "Content-Type: application/json" \
+#      -d '{"recency_days": 11, "frequency_per_year": 2, "avg_order_value_kes": 4000, "num_categories_purchased": 2}'
 # Note: unlike the two Pipelines above, K-Means does not bundle its own
 # scaler, so this is the one endpoint where the scaling step is applied
 # explicitly (scaler.transform(...) then kmeans.predict(...)) -- exactly the
 # two-object pattern the clustering notebook persisted together for this
 # reason. There is still no manual encoding or feature engineering: the
 # three numeric fields are used exactly as the client sends them.
-@app.route("/api/v1/models/mall-customer-segmenter/predictions", methods=["POST"])
+@app.route("/api/v1/models/ecommerce-customer-segmenter/predictions", methods=["POST"])
 def predict_customer_segment():
     payload = request.get_json()
-    input_row = pd.DataFrame([payload])
+    input_row = pd.DataFrame([payload])[clustering_features]
 
-    scaled_input = clustering_scaler.transform(input_row)
+    imputed_input = pd.DataFrame(
+        clustering_imputer.transform(input_row), columns=clustering_features
+    )
+    scaled_input = clustering_scaler.transform(imputed_input)
     assigned_cluster = int(clustering_kmeans.predict(scaled_input)[0])
 
     return jsonify({
