@@ -77,14 +77,16 @@ os.path.join(MODEL_DIR, "20261104_133324_ridge_regressor_for_retail_sales.joblib
 )
 
 classification_pipeline = joblib.load(
-    os.path.join(MODEL_DIR, "svc_classifier_for_sme_credit_risk.joblib")
+    os.path.join(MODEL_DIR, "corporate_distress_classifier.joblib")
 )
 
 clustering_artifact = joblib.load(
-    os.path.join(MODEL_DIR, "kmeans_mall_customer_segmentation.joblib")
+    os.path.join(MODEL_DIR, "kmeans_ecommerce_customer_segmentation.joblib")
 )
+clustering_imputer = clustering_artifact["imputer"]
 clustering_scaler = clustering_artifact["scaler"]
 clustering_kmeans = clustering_artifact["kmeans"]
+clustering_features = clustering_artifact["feature_order"]
 
 arm_artifact = joblib.load(
     os.path.join(MODEL_DIR, "apriori_recommendation_rules.joblib")
@@ -151,7 +153,7 @@ def predict_revenue():
 # 2. CLASSIFICATION -- predict SME credit risk category (Low/Medium/High)
 
 # Sample request (cURL):
-#   curl -X POST http://127.0.0.1:5000/api/v1/models/sme-credit-risk-classifier/predictions \
+#   curl -X POST http://127.0.0.1:5000/api/v1/models/corporate-distress-classifier/predictions \
 #        -H "Content-Type: application/json" \
 #        -d '{"sector": "Retail", "county": "Nairobi", "quarter": "Q2",
 #             "loan_purpose": "Working Capital", "owner_education_level": "Secondary",
@@ -168,7 +170,7 @@ def predict_revenue():
 # more often unsecured (structural missingness, not missing at random) --
 # again, the pipeline's imputer + missingness indicator already handles this
 # internally; this route does not need special code for it.
-@app.route("/api/v1/models/sme-credit-risk-classifier/predictions", methods=["POST"])
+@app.route("/api/v1/models/corporate-distress-classifier/predictions", methods=["POST"])
 def predict_credit_risk():
     payload = request.get_json()
     input_row = pd.DataFrame([payload])
@@ -183,29 +185,31 @@ def predict_credit_risk():
             str(label): round(float(prob), 4)
             for label, prob in zip(class_labels, predicted_probabilities)
         },
-        "model": "Support Vector Classifier (tuned, SMOTE-resampled at training only)",
+        "model": "Random Forest (tuned, SMOTE at training only)",
     })
 
 
 # 3. CLUSTERING -- assign a new mall customer to an existing segment
 
 # Sample request (cURL):
-#   curl -X POST http://127.0.0.1:5000/api/v1/models/mall-customer-segmenter/predictions \
-#        -H "Content-Type: application/json" \
-#        -d '{"Age": 27, "Annual Income (k$)": 45, "Spending Score (1-100)": 72}'
-#
+# curl -X POST http://127.0.0.1:5000/api/v1/models/ecommerce-customer-segmenter/predictions \
+#      -H "Content-Type: application/json" \
+#      -d '{"recency_days": 11, "frequency_per_year": 2, "avg_order_value_kes": 4000, "num_categories_purchased": 2}'
 # Note: unlike the two Pipelines above, K-Means does not bundle its own
 # scaler, so this is the one endpoint where the scaling step is applied
 # explicitly (scaler.transform(...) then kmeans.predict(...)) -- exactly the
 # two-object pattern the clustering notebook persisted together for this
 # reason. There is still no manual encoding or feature engineering: the
 # three numeric fields are used exactly as the client sends them.
-@app.route("/api/v1/models/mall-customer-segmenter/predictions", methods=["POST"])
+@app.route("/api/v1/models/ecommerce-customer-segmenter/predictions", methods=["POST"])
 def predict_customer_segment():
     payload = request.get_json()
-    input_row = pd.DataFrame([payload])
+    input_row = pd.DataFrame([payload])[clustering_features]
 
-    scaled_input = clustering_scaler.transform(input_row)
+    imputed_input = pd.DataFrame(
+        clustering_imputer.transform(input_row), columns=clustering_features
+    )
+    scaled_input = clustering_scaler.transform(imputed_input)
     assigned_cluster = int(clustering_kmeans.predict(scaled_input)[0])
 
     return jsonify({
