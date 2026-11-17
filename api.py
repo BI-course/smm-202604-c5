@@ -89,7 +89,7 @@ clustering_kmeans = clustering_artifact["kmeans"]
 clustering_features = clustering_artifact["feature_order"]
 
 arm_artifact = joblib.load(
-    os.path.join(MODEL_DIR, "apriori_recommendation_rules.joblib")
+    os.path.join(MODEL_DIR, "streaming_arm_rules.joblib")
 )
 recommendation_lookup = arm_artifact["recommendation_lookup"]
 sku_lookup = arm_artifact["sku_lookup"]
@@ -218,16 +218,15 @@ def predict_customer_segment():
     })
 
 
-# 4. ASSOCIATION RULE MINING -- recommend products for a shopping cart
-
+# 4. ASSOCIATION RULE MINING -- recommend streaming titles for a viewer's watch list
 # Sample request (cURL):
-#   curl -X POST http://127.0.0.1:5000/api/v1/models/ecommerce-recommender/predictions \
+#   curl -X POST http://127.0.0.1:5000/api/v1/models/streaming-recommender/predictions\
 #        -H "Content-Type: application/json" \
-#        -d '{"cart": ["H06", "H07"]}'
+#        -d '{""cart": ["S02", "S03"] "top_n": 3}'
 #
-#   curl -X POST http://127.0.0.1:5000/api/v1/models/ecommerce-recommender/predictions \
+#   curl -X POST http://127.0.0.1:5000/api/v1/models/streaming-recommender/predictions \
 #        -H "Content-Type: application/json" \
-#        -d '{"cart": ["P04", "P01"]}'
+#        -d '{"cart": ["S99"]}'
 #
 # Note: there is no scikit-learn ".predict()" here -- the mined association
 # rules were precomputed into a lookup dictionary
@@ -236,8 +235,8 @@ def predict_customer_segment():
 # endpoint performs the exact same lookup+rank step a production recommender
 # microservice would perform on every incoming request; it does not mine
 # for the rules again.
-@app.route("/api/v1/models/ecommerce-recommender/predictions", methods=["POST"])
-def recommend_products():
+@app.route("/api/v1/models/streaming-recommender/predictions", methods=["POST"])
+def recommend_streams():
     payload = request.get_json()
     cart = set(payload.get("cart", []))
     top_n = int(payload.get("top_n", 3))
@@ -264,7 +263,7 @@ def recommend_products():
     return jsonify({
         "cart": sorted(cart),
         "recommendations": recommendations,
-        "model": "Apriori association rules, cleaned + precomputed lookup",
+        "model": "apriori-streaming-recommendation-rules, cleaned + precomputed lookup",
     })
 
 
