@@ -6,11 +6,10 @@ exposed by api.py, running on the local Flask development server. Start
 api.py first (python api.py), then run this script separately.
 
 This mirrors api.py's four artifacts one-to-one:
-
-    1. Regression        -- /api/v1/models/sme-revenue-regressor/predictions
-    2. Classification     -- /api/v1/models/sme-credit-risk-classifier/predictions
-    3. Clustering         -- /api/v1/models/mall-customer-segmenter/predictions
-    4. Association Rule   -- /api/v1/models/ecommerce-recommender/predictions
+    1. Regression        -- /api/v1/models/retail-sales-regressor/predictions
+    2. Classification    -- /api/v1/models/corporate-distress-classifier/predictions
+    3. Clustering         -- /api/v1/models/ecommerce-customer-segmenter/predictions
+    4. Association Rule   -- /api/v1/models/streaming-recommender/predictions
        Mining (ARM)
 
 Each call uses the same requests.post(..., json=payload, headers=headers)
@@ -55,23 +54,20 @@ def call_endpoint(path, payload):
     return None
 
 
-# 1. REGRESSION -- predict monthly revenue (KES) for an SME
+# 1. REGRESSION -- predict daily retail sales revenue (KES)
 
 regression_payload = {
-    "sector": "Technology", "county": "Nairobi", "quarter": "Q3",
-    "business_age_years": 4.5, "num_employees": 12,
-    "owner_education_level": "Secondary",
-    "monthly_marketing_spend_kes": 45000,
-    "avg_daily_foot_traffic": None,  # Technology sector: structurally not applicable
-    "online_presence_score": 78.0, "loan_amount_kes": 250000,
-    "interest_rate_pct": 14.5, "inflation_rate_pct": 6.5,
-    "competitor_density": 5, "customer_satisfaction_score": 4.2,
+    "promotions_active": 1,
+    "footfall_count": 250,
+    "avg_basket_size_kes": 1500,
+    "store_format": "Supermarket",
+    "location_type": "Residential",
+    "store_size_category": "Medium"
 }
 
-result = call_endpoint("/api/v1/models/sme-revenue-regressor/predictions", regression_payload)
+result = call_endpoint("/api/v1/models/retail-sales-regressor/predictions", regression_payload)
 if result is not None:
-    print("Predicted monthly revenue (KES) =", result["predicted_monthly_revenue_kes"])
-
+    print("Predicted daily sales revenue (KES) =", result["predicted_daily_sales_revenue_kes"])
 print("-" * 60)
 
 
@@ -79,19 +75,22 @@ print("-" * 60)
 # 2. CLASSIFICATION -- predict SME credit risk category (Low/Medium/High)
 
 classification_payload = {
-    "sector": "Retail", "county": "Nairobi", "quarter": "Q2",
-    "loan_purpose": "Working Capital", "owner_education_level": "Secondary",
-    "business_age_years": 2.1, "num_employees": 4,
-    "monthly_revenue_kes": 850000, "loan_amount_kes": 150000,
-    "loan_term_months": 12, "interest_rate_pct": 16.5,
-    "collateral_value_kes": None,  # Working Capital loans are more often unsecured
-    "debt_to_income_ratio": 0.62,
-    "credit_score": 590, "num_previous_loans": 1,
-    "missed_payments_count": 3, "online_presence_score": 40.0,
-    "customer_satisfaction_score": 3.4, "competitor_density": 6,
+    "industry_sector": "Manufacturing",
+    "listing_status": "Private",
+    "credit_rating_band": "High Risk",
+    "audit_going_concern_flag": None,
+    "years_in_operation": 4.0,
+    "num_employees": 40,
+    "debt_to_equity_ratio": 3.8,
+    "current_ratio": 0.7,
+    "interest_coverage_ratio": 0.9,
+    "revenue_growth_pct": -6.5,
+    "net_profit_margin_pct": -3.2,
+    "working_capital_to_assets_ratio": -0.12,
+    "macroeconomic_interest_rate_pct": 14.5
 }
 
-result = call_endpoint("/api/v1/models/sme-credit-risk-classifier/predictions", classification_payload)
+result = call_endpoint("/api/v1/models/corporate-distress-classifier/predictions", classification_payload)
 if result is not None:
     print("Predicted credit risk category =", result["predicted_credit_risk_category"])
     print("Class probabilities =", result["class_probabilities"])
@@ -119,11 +118,11 @@ print("-" * 60)
 # 4. ASSOCIATION RULE MINING -- recommend products for a shopping cart
 
 recommendation_payload = {
-    "cart": ["P04", "P01"],
+    "cart": ["S02", "S03"],
     "top_n": 3,
 }
 
-result = call_endpoint("/api/v1/models/ecommerce-recommender/predictions", recommendation_payload)
+result = call_endpoint("/api/v1/models/streaming-recommender/predictions", recommendation_payload)
 if result is not None:
     print("Cart =", result["cart"])
     print("Recommendations =", result["recommendations"])

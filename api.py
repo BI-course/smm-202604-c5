@@ -4,7 +4,7 @@ api.py
 A RESTish API, built with Flask, that serves FOUR machine learning artifacts
 produced in earlier labs:
 
-    1. Regression       -- SME monthly revenue prediction
+    1. Regression        -- Daily retail sales revenue prediction (KES)
     2. Classification   -- SME credit risk category
     3. Clustering       -- Mall customer segment assignment
     4. Association Rule -- Product recommendation from a cart
@@ -73,21 +73,23 @@ CORS(app, resources={r"/api/*": {"origins": [
 MODEL_DIR = "./model"
 
 regression_pipeline = joblib.load(
-    os.path.join(MODEL_DIR, "lasso_regressor_for_sme_revenue.joblib")
+os.path.join(MODEL_DIR, "20261104_133324_ridge_regressor_for_retail_sales.joblib")
 )
 
 classification_pipeline = joblib.load(
-    os.path.join(MODEL_DIR, "svc_classifier_for_sme_credit_risk.joblib")
+    os.path.join(MODEL_DIR, "corporate_distress_classifier.joblib")
 )
 
 clustering_artifact = joblib.load(
-    os.path.join(MODEL_DIR, "kmeans_mall_customer_segmentation.joblib")
+    os.path.join(MODEL_DIR, "kmeans_ecommerce_customer_segmentation.joblib")
 )
+clustering_imputer = clustering_artifact["imputer"]
 clustering_scaler = clustering_artifact["scaler"]
 clustering_kmeans = clustering_artifact["kmeans"]
+clustering_features = clustering_artifact["feature_order"]
 
 arm_artifact = joblib.load(
-    os.path.join(MODEL_DIR, "apriori_recommendation_rules.joblib")
+    os.path.join(MODEL_DIR, "streaming_arm_rules.joblib")
 )
 recommendation_lookup = arm_artifact["recommendation_lookup"]
 sku_lookup = arm_artifact["sku_lookup"]
@@ -95,37 +97,27 @@ sku_lookup = arm_artifact["sku_lookup"]
 print("All the four artifacts have been loaded. The API is ready.")
 
 
-# 1. REGRESSION -- predict monthly revenue (KES) for an SME
-
+# 1. REGRESSION -- predict daily retail sales revenue (KES)
 # Sample request (cURL):
-#   curl -X POST http://127.0.0.1:5000/api/v1/models/sme-revenue-regressor/predictions \
-#        -H "Content-Type: application/json" \
-#        -d '{"sector": "Technology", "county": "Nairobi", "quarter": "Q3",
-#             "business_age_years": 4.5, "num_employees": 12,
-#             "owner_education_level": "Secondary",
-#             "monthly_marketing_spend_kes": 45000,
-#             "avg_daily_foot_traffic": null,
-#             "online_presence_score": 78.0, "loan_amount_kes": 250000,
-#             "interest_rate_pct": 14.5, "inflation_rate_pct": 6.5,
-#             "competitor_density": 5, "customer_satisfaction_score": 4.2}'
-#
+# curl -X POST http://127.0.0.1:5000/api/v1/models/retail-sales-regressor/predictions \
+#   -H "Content-Type: application/json" \
+#   -d '{"promotions_active":1,"footfall_count":250,"avg_basket_size_kes":1500,"store_format":"Supermarket","location_type":"Residential","store_size_category":"Medium"}'
 # Sample request (PowerShell):
-#   Invoke-RestMethod -Method Post `
-#     -Uri "http://127.0.0.1:5000/api/v1/models/sme-revenue-regressor/predictions" `
-#     -ContentType "application/json" `
-#     -Body (@{sector="Technology"; county="Nairobi"; quarter="Q3";
-#              business_age_years=4.5; num_employees=12;
-#              owner_education_level="Secondary";
-#              monthly_marketing_spend_kes=45000; avg_daily_foot_traffic=$null;
-#              online_presence_score=78.0; loan_amount_kes=250000;
-#              interest_rate_pct=14.5; inflation_rate_pct=6.5;
-#              competitor_density=5; customer_satisfaction_score=4.2} | ConvertTo-Json)
+# Invoke-RestMethod -Method Post `
+#   -Uri "http://127.0.0.1:5000/api/v1/models/retail-sales-regressor/predictions" `
+#   -ContentType "application/json" `
+#   -Body (@{
+#       promotions_active = 1
+#       footfall_count = 250
+#       avg_basket_size_kes = 1500
+#       store_format = "Supermarket"
+#       location_type = "Residential"
+#       store_size_category = "Medium"
+#   } | ConvertTo-Json)
 #
-# Note: avg_daily_foot_traffic is deliberately null for a Technology-sector
-# business (fully online -- foot traffic is structurally not applicable, not
-# missing at random). The pipeline's own imputer handles the null value; nothing
-# in this file needs to know that rule.
-@app.route("/api/v1/models/sme-revenue-regressor/predictions", methods=["POST"])
+#
+
+@app.route("/api/v1/models/retail-sales-regressor/predictions", methods=["POST"])
 def predict_revenue():
     payload = request.get_json()
 
@@ -143,15 +135,15 @@ def predict_revenue():
     predicted_revenue_kes = float(np.expm1(predicted_log_revenue))
 
     return jsonify({
-        "predicted_monthly_revenue_kes": round(predicted_revenue_kes, 2),
-        "model": "Lasso Regressor",
+        "predicted_daily_sales_revenue_kes": round(predicted_revenue_kes, 2),
+        "model": "Ridge Regression",
     })
 
 
 # 2. CLASSIFICATION -- predict SME credit risk category (Low/Medium/High)
 
 # Sample request (cURL):
-#   curl -X POST http://127.0.0.1:5000/api/v1/models/sme-credit-risk-classifier/predictions \
+#   curl -X POST http://127.0.0.1:5000/api/v1/models/corporate-distress-classifier/predictions \
 #        -H "Content-Type: application/json" \
 #        -d '{"sector": "Retail", "county": "Nairobi", "quarter": "Q2",
 #             "loan_purpose": "Working Capital", "owner_education_level": "Secondary",
@@ -168,7 +160,7 @@ def predict_revenue():
 # more often unsecured (structural missingness, not missing at random) --
 # again, the pipeline's imputer + missingness indicator already handles this
 # internally; this route does not need special code for it.
-@app.route("/api/v1/models/sme-credit-risk-classifier/predictions", methods=["POST"])
+@app.route("/api/v1/models/corporate-distress-classifier/predictions", methods=["POST"])
 def predict_credit_risk():
     payload = request.get_json()
     input_row = pd.DataFrame([payload])
@@ -183,29 +175,31 @@ def predict_credit_risk():
             str(label): round(float(prob), 4)
             for label, prob in zip(class_labels, predicted_probabilities)
         },
-        "model": "Support Vector Classifier (tuned, SMOTE-resampled at training only)",
+        "model": "Random Forest (tuned, SMOTE at training only)",
     })
 
 
 # 3. CLUSTERING -- assign a new mall customer to an existing segment
 
 # Sample request (cURL):
-#   curl -X POST http://127.0.0.1:5000/api/v1/models/mall-customer-segmenter/predictions \
-#        -H "Content-Type: application/json" \
-#        -d '{"Age": 27, "Annual Income (k$)": 45, "Spending Score (1-100)": 72}'
-#
+# curl -X POST http://127.0.0.1:5000/api/v1/models/ecommerce-customer-segmenter/predictions \
+#      -H "Content-Type: application/json" \
+#      -d '{"recency_days": 11, "frequency_per_year": 2, "avg_order_value_kes": 4000, "num_categories_purchased": 2}'
 # Note: unlike the two Pipelines above, K-Means does not bundle its own
 # scaler, so this is the one endpoint where the scaling step is applied
 # explicitly (scaler.transform(...) then kmeans.predict(...)) -- exactly the
 # two-object pattern the clustering notebook persisted together for this
 # reason. There is still no manual encoding or feature engineering: the
 # three numeric fields are used exactly as the client sends them.
-@app.route("/api/v1/models/mall-customer-segmenter/predictions", methods=["POST"])
+@app.route("/api/v1/models/ecommerce-customer-segmenter/predictions", methods=["POST"])
 def predict_customer_segment():
     payload = request.get_json()
-    input_row = pd.DataFrame([payload])
+    input_row = pd.DataFrame([payload])[clustering_features]
 
-    scaled_input = clustering_scaler.transform(input_row)
+    imputed_input = pd.DataFrame(
+        clustering_imputer.transform(input_row), columns=clustering_features
+    )
+    scaled_input = clustering_scaler.transform(imputed_input)
     assigned_cluster = int(clustering_kmeans.predict(scaled_input)[0])
 
     return jsonify({
@@ -214,16 +208,15 @@ def predict_customer_segment():
     })
 
 
-# 4. ASSOCIATION RULE MINING -- recommend products for a shopping cart
-
+# 4. ASSOCIATION RULE MINING -- recommend streaming titles for a viewer's watch list
 # Sample request (cURL):
-#   curl -X POST http://127.0.0.1:5000/api/v1/models/ecommerce-recommender/predictions \
+#   curl -X POST http://127.0.0.1:5000/api/v1/models/streaming-recommender/predictions\
 #        -H "Content-Type: application/json" \
-#        -d '{"cart": ["H06", "H07"]}'
+#        -d '{"cart": ["S02", "S03"], "top_n": 3}'
 #
-#   curl -X POST http://127.0.0.1:5000/api/v1/models/ecommerce-recommender/predictions \
+#   curl -X POST http://127.0.0.1:5000/api/v1/models/streaming-recommender/predictions \
 #        -H "Content-Type: application/json" \
-#        -d '{"cart": ["P04", "P01"]}'
+#        -d '{"cart": ["S99"]}'
 #
 # Note: there is no scikit-learn ".predict()" here -- the mined association
 # rules were precomputed into a lookup dictionary
@@ -232,8 +225,8 @@ def predict_customer_segment():
 # endpoint performs the exact same lookup+rank step a production recommender
 # microservice would perform on every incoming request; it does not mine
 # for the rules again.
-@app.route("/api/v1/models/ecommerce-recommender/predictions", methods=["POST"])
-def recommend_products():
+@app.route("/api/v1/models/streaming-recommender/predictions", methods=["POST"])
+def recommend_streams():
     payload = request.get_json()
     cart = set(payload.get("cart", []))
     top_n = int(payload.get("top_n", 3))
@@ -260,7 +253,7 @@ def recommend_products():
     return jsonify({
         "cart": sorted(cart),
         "recommendations": recommendations,
-        "model": "Apriori association rules, cleaned + precomputed lookup",
+        "model": "apriori-streaming-recommendation-rules, cleaned + precomputed lookup",
     })
 
 
@@ -279,4 +272,4 @@ if __name__ == "__main__":
 
     # HTTPS/TLS alternative for local development (requires a self-signed
     # certificate; see app_server_reverse_proxy_server_setup.md):
-    # app.run(debug=False, ssl_context=("cert.pem", "key.pem"))
+    # app.run(debug=False, ssl_context=("certs.pem", "key.pem"))
