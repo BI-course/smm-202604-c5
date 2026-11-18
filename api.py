@@ -222,7 +222,7 @@ def predict_customer_segment():
 # Sample request (cURL):
 #   curl -X POST http://127.0.0.1:5000/api/v1/models/streaming-recommender/predictions\
 #        -H "Content-Type: application/json" \
-#        -d '{""cart": ["S02", "S03"] "top_n": 3}'
+#        -d '{"cart": ["S02", "S03"], "top_n": 3}'
 #
 #   curl -X POST http://127.0.0.1:5000/api/v1/models/streaming-recommender/predictions \
 #        -H "Content-Type: application/json" \
