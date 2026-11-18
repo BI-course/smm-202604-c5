@@ -6,11 +6,10 @@ exposed by api.py, running on the local Flask development server. Start
 api.py first (python api.py), then run this script separately.
 
 This mirrors api.py's four artifacts one-to-one:
-
-    1. Regression        -- /api/v1/models/sme-revenue-regressor/predictions
-    2. Classification     -- /api/v1/models/corporate-distress-classifier/predictions
-    3. Clustering         -- /api/v1/models/mall-customer-segmenter/predictions
-    4. Association Rule   -- //api/v1/models/streaming-recommender/predictions
+    1. Regression        -- /api/v1/models/retail-sales-regressor/predictions
+    2. Classification    -- /api/v1/models/corporate-distress-classifier/predictions
+    3. Clustering         -- /api/v1/models/ecommerce-customer-segmenter/predictions
+    4. Association Rule   -- /api/v1/models/streaming-recommender/predictions
        Mining (ARM)
 
 Each call uses the same requests.post(..., json=payload, headers=headers)
@@ -55,7 +54,7 @@ def call_endpoint(path, payload):
     return None
 
 
-# 1. REGRESSION -- predict monthly revenue (KES) for an SME
+# 1. REGRESSION -- predict daily retail sales revenue (KES)
 
 regression_payload = {
     "promotions_active": 1,
