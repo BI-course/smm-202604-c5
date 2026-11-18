@@ -4,7 +4,7 @@ api.py
 A RESTish API, built with Flask, that serves FOUR machine learning artifacts
 produced in earlier labs:
 
-    1. Regression       -- SME monthly revenue prediction
+    1. Regression        -- Daily retail sales revenue prediction (KES)
     2. Classification   -- SME credit risk category
     3. Clustering       -- Mall customer segment assignment
     4. Association Rule -- Product recommendation from a cart
@@ -97,36 +97,26 @@ sku_lookup = arm_artifact["sku_lookup"]
 print("All the four artifacts have been loaded. The API is ready.")
 
 
-# 1. REGRESSION -- predict monthly revenue (KES) for an SME
-
+# 1. REGRESSION -- predict daily retail sales revenue (KES)
 # Sample request (cURL):
-#   curl -X POST http://127.0.0.1:5000/api/v1/models/sme-revenue-regressor/predictions \
-#        -H "Content-Type: application/json" \
-#        -d '{"sector": "Technology", "county": "Nairobi", "quarter": "Q3",
-#             "business_age_years": 4.5, "num_employees": 12,
-#             "owner_education_level": "Secondary",
-#             "monthly_marketing_spend_kes": 45000,
-#             "avg_daily_foot_traffic": null,
-#             "online_presence_score": 78.0, "loan_amount_kes": 250000,
-#             "interest_rate_pct": 14.5, "inflation_rate_pct": 6.5,
-#             "competitor_density": 5, "customer_satisfaction_score": 4.2}'
-#
+# curl -X POST http://127.0.0.1:5000/api/v1/models/retail-sales-regressor/predictions \
+#   -H "Content-Type: application/json" \
+#   -d '{"promotions_active":1,"footfall_count":250,"avg_basket_size_kes":1500,"store_format":"Supermarket","location_type":"Residential","store_size_category":"Medium"}'
 # Sample request (PowerShell):
-#   Invoke-RestMethod -Method Post `
-#     -Uri "http://127.0.0.1:5000/api/v1/models/sme-revenue-regressor/predictions" `
-#     -ContentType "application/json" `
-#     -Body (@{sector="Technology"; county="Nairobi"; quarter="Q3";
-#              business_age_years=4.5; num_employees=12;
-#              owner_education_level="Secondary";
-#              monthly_marketing_spend_kes=45000; avg_daily_foot_traffic=$null;
-#              online_presence_score=78.0; loan_amount_kes=250000;
-#              interest_rate_pct=14.5; inflation_rate_pct=6.5;
-#              competitor_density=5; customer_satisfaction_score=4.2} | ConvertTo-Json)
+# Invoke-RestMethod -Method Post `
+#   -Uri "http://127.0.0.1:5000/api/v1/models/retail-sales-regressor/predictions" `
+#   -ContentType "application/json" `
+#   -Body (@{
+#       promotions_active = 1
+#       footfall_count = 250
+#       avg_basket_size_kes = 1500
+#       store_format = "Supermarket"
+#       location_type = "Residential"
+#       store_size_category = "Medium"
+#   } | ConvertTo-Json)
 #
-# Note: avg_daily_foot_traffic is deliberately null for a Technology-sector
-# business (fully online -- foot traffic is structurally not applicable, not
-# missing at random). The pipeline's own imputer handles the null value; nothing
-# in this file needs to know that rule.
+#
+
 @app.route("/api/v1/models/retail-sales-regressor/predictions", methods=["POST"])
 def predict_revenue():
     payload = request.get_json()
