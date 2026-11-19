@@ -99,15 +99,16 @@ print("-" * 60)
 
 
 
-# 3. CLUSTERING -- assign a new mall customer to an existing segment
+# 3. CLUSTERING -- assign a new e-commerce customer to an existing segment
 
 clustering_payload = {
-    "Age": 27,
-    "Annual Income (k$)": 45,
-    "Spending Score (1-100)": 72,
+    "recency_days": 12,
+    "frequency_per_year": 26,
+    "avg_order_value_kes": 9000,
+    "num_categories_purchased": 6,
 }
 
-result = call_endpoint("/api/v1/models/mall-customer-segmenter/predictions", clustering_payload)
+result = call_endpoint("/api/v1/models/ecommerce-customer-segmenter/predictions", clustering_payload)
 if result is not None:
     print("Assigned cluster =", result["assigned_cluster"])
 
