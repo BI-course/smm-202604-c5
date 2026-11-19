@@ -8,10 +8,10 @@
 
 | **Details**                                                                                                                           | **Comment** |
 |:--------------------------------------------------------------------------------------------------------------------------------------|:------------|
-| **Student ID**                                                                                                                        |             |
-| **Name**                                                                                                                              |             |
-| **What part of the lab did you personally<br/>contribute to (provide a link to the<br/>branch(es)), and what did you learn from it?** |             |
-
+| **Student ID**                                                                                                                        |   166992          |
+| **Name**                                                                                                                              | Bakhita Rose           |
+| **What part of the lab did you personally<br/>contribute to (provide a link to the<br/>branch(es)), and what did you learn from it?** | To begin I ensured my branch has all the changes made. Created a web service in render.com. Deployed the service and ensure it was running then tested the 4 endpoints both on the curl and postman.https://github.com/BI-course/smm-202604-c5/tree/deploy/lab-smm/render-bakhita            |
+ 
 **Member 2:**
 
 | **Details**                                                                                                                           | **Comment** |
