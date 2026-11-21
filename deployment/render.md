@@ -1,6 +1,6 @@
 # Public deployment: Render
 
-This covers the Render part of the lab: the API in `api.py`, with our four saved models, served publicly so it can be tested with curl or Postman.
+This covers the Render part of the lab: the API in `../api.py`, with our four saved models, served publicly so it can be tested with curl or Postman.
 
 **Live URL:** https://smm-202604-c5-lab.onrender.com
 
@@ -24,7 +24,7 @@ curl / Postman --HTTPS--> Render (TLS, public URL) --> Gunicorn (4 workers, $POR
 
 ## Steps
 
-1. Checked that `model/` on `main` has our four `.joblib` files and that `Procfile` says `web: gunicorn -w 4 -b 0.0.0.0:$PORT api:app`:
+1. Checked that `../model` on `main` has our four `.joblib` files and that `Procfile` says `web: gunicorn -w 4 -b 0.0.0.0:$PORT api:app`:
    - `20261104_133324_ridge_regressor_for_retail_sales.joblib` (regression)
    - `corporate_distress_classifier.joblib` (classification)
    - `kmeans_ecommerce_customer_segmentation.joblib` (clustering)
@@ -49,5 +49,5 @@ All requests returned `200 OK`. Base URL: `https://smm-202604-c5-lab.onrender.co
 
 ## Problems I hit
 
-- **"Not Found" at the main URL.** Opening `https://smm-202604-c5-lab.onrender.com` in the browser returns 404. This is by design: `api.py` has no route for `/`, only the four prediction routes.
+- **"Not Found" at the main URL.** Opening `https://smm-202604-c5-lab.onrender.com` in the browser returns 404. This is by design: `../api.py` has no route for `/`, only the four prediction routes.
 - **"Method Not Allowed" in the browser.** Opening an endpoint address in Safari returns 405, because the browser sends GET and the endpoints only accept POST. Testing with curl in Terminal or with Postman fixed this.
