@@ -140,7 +140,7 @@ def predict_revenue():
     })
 
 
-# 2. CLASSIFICATION -- predict SME credit risk category (Low/Medium/High)
+# 2. CLASSIFICATION -- predict corporate distress category (Healthy/Watch/Distressed)
 
 # Sample request (cURL):
 #   curl -X POST http://127.0.0.1:5000/api/v1/models/corporate-distress-classifier/predictions \
@@ -170,7 +170,7 @@ def predict_credit_risk():
     class_labels = classification_pipeline.named_steps["model"].classes_
 
     return jsonify({
-        "predicted_credit_risk_category": str(predicted_class),
+        "predicted_distress_category": str(predicted_class),
         "class_probabilities": {
             str(label): round(float(prob), 4)
             for label, prob in zip(class_labels, predicted_probabilities)

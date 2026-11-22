@@ -92,7 +92,7 @@ classification_payload = {
 
 result = call_endpoint("/api/v1/models/corporate-distress-classifier/predictions", classification_payload)
 if result is not None:
-    print("Predicted credit risk category =", result["predicted_credit_risk_category"])
+    print("Predicted distress category =", result["predicted_distress_category"])
     print("Class probabilities =", result["class_probabilities"])
 
 print("-" * 60)
