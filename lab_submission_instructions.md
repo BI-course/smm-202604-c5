@@ -11,14 +11,20 @@
 | **Student ID**                                                                                                                        |   166992          |
 | **Name**                                                                                                                              | Bakhita Rose           |
 | **What part of the lab did you personally<br/>contribute to (provide a link to the<br/>branch(es)), and what did you learn from it?** | To begin I ensured my branch has all the changes made. Created a web service in render.com. Deployed the service and ensure it was running then tested the 4 endpoints both on the curl and postman.https://github.com/BI-course/smm-202604-c5/tree/deploy/lab-smm/render-bakhita            |
- 
+
+
 **Member 2:**
 
-| **Details**                                                                                                                           | **Comment** |
-|:--------------------------------------------------------------------------------------------------------------------------------------|:------------|
-| **Student ID**                                                                                                                        |             |
-| **Name**                                                                                                                              |             |
-| **What part of the lab did you personally<br/>contribute to (provide a link to the<br/>branch(es)), and what did you learn from it?** |             |
+| **Details** | **Comment** |
+|:---|:---|
+| **Student ID** | 151311 |
+| **Name** | Ndimanya Akilimali |
+| **What part of the lab did you personally contribute to (provide a link to the branch(es)), and what did you learn from it?** | I saved our trained Ridge Regression pipeline using Joblib and integrated it into a Flask REST API to predict daily retail sales revenue in Kenyan shillings. I updated the API request examples and successfully tested the endpoint using cURL. Through this work, I learned how to serve trained machine learning models without retraining them, process JSON requests, and return predictions through a REST API. **GitHub branch:** https://github.com/BI-course/smm-202604-c5/tree/feature/regression |
+
+
+
+
+
 
 **Member 3:**
 
