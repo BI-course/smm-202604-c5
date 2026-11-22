@@ -24,15 +24,14 @@
 
 
 
-
-
 **Member 3:**
 
 | **Details**                                                                                                                           | **Comment** |
 |:--------------------------------------------------------------------------------------------------------------------------------------|:------------|
-| **Student ID**                                                                                                                        |             |
-| **Name**                                                                                                                              |             |
-| **What part of the lab did you personally<br/>contribute to (provide a link to the<br/>branch(es)), and what did you learn from it?** |             |
+| **Student ID**                                                                                                                        |     158787        |
+| **Name**                                                                                                                              |    Macharia Justin Ngunjiri         |
+| **What part of the lab did you personally<br/>contribute to (provide a link to the<br/>branch(es)), and what did you learn from it?** | I built the classification endpoint. I re-ran our group's corporate distress notebook and saved the whole tuned pipeline (preprocessing + SMOTE + Random Forest) with joblib as model/corporate_distress_classifier.joblib. I then edited api.py so it loads that file once at startup and serves POST /api/v1/models/corporate-distress-classifier/predictions, returning the predicted distress category and the class probabilities. I also updated the example payload in frontend/api_consumer_from_dev_flask.py, tested it locally, and merged it into main through pull requests. Branch: https://github.com/BI-course/smm-202604-c5/tree/feature/classification. What I learned: the saved pipeline is the deployment artifact. SMOTE only runs during training, so the pipeline skips it at prediction time. The scikit-learn version used for training must match the one used for serving (a 1.6.1 versus 1.9.0 mismatch crashed my first model load). Models are loaded once at startup and never trained inside api.py.    |
+
 
 **Member 4:**
 
