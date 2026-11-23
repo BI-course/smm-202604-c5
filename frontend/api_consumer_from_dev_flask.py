@@ -6,11 +6,10 @@ exposed by api.py, running on the local Flask development server. Start
 api.py first (python api.py), then run this script separately.
 
 This mirrors api.py's four artifacts one-to-one:
-
-    1. Regression        -- /api/v1/models/sme-revenue-regressor/predictions
-    2. Classification     -- /api/v1/models/corporate-distress-classifier/predictions
-    3. Clustering         -- /api/v1/models/mall-customer-segmenter/predictions
-    4. Association Rule   -- //api/v1/models/streaming-recommender/predictions
+    1. Regression        -- /api/v1/models/retail-sales-regressor/predictions
+    2. Classification    -- /api/v1/models/corporate-distress-classifier/predictions
+    3. Clustering         -- /api/v1/models/ecommerce-customer-segmenter/predictions
+    4. Association Rule   -- /api/v1/models/streaming-recommender/predictions
        Mining (ARM)
 
 Each call uses the same requests.post(..., json=payload, headers=headers)
@@ -55,7 +54,7 @@ def call_endpoint(path, payload):
     return None
 
 
-# 1. REGRESSION -- predict monthly revenue (KES) for an SME
+# 1. REGRESSION -- predict daily retail sales revenue (KES)
 
 regression_payload = {
     "promotions_active": 1,
@@ -93,22 +92,23 @@ classification_payload = {
 
 result = call_endpoint("/api/v1/models/corporate-distress-classifier/predictions", classification_payload)
 if result is not None:
-    print("Predicted credit risk category =", result["predicted_credit_risk_category"])
+    print("Predicted distress category =", result["predicted_distress_category"])
     print("Class probabilities =", result["class_probabilities"])
 
 print("-" * 60)
 
 
 
-# 3. CLUSTERING -- assign a new mall customer to an existing segment
+# 3. CLUSTERING -- assign a new e-commerce customer to an existing segment
 
 clustering_payload = {
-    "Age": 27,
-    "Annual Income (k$)": 45,
-    "Spending Score (1-100)": 72,
+    "recency_days": 12,
+    "frequency_per_year": 26,
+    "avg_order_value_kes": 9000,
+    "num_categories_purchased": 6,
 }
 
-result = call_endpoint("/api/v1/models/mall-customer-segmenter/predictions", clustering_payload)
+result = call_endpoint("/api/v1/models/ecommerce-customer-segmenter/predictions", clustering_payload)
 if result is not None:
     print("Assigned cluster =", result["assigned_cluster"])
 
