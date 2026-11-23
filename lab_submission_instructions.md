@@ -45,9 +45,9 @@
 
 | **Details**                                                                                                                           | **Comment** |
 |:--------------------------------------------------------------------------------------------------------------------------------------|:------------|
-| **Student ID**                                                                                                                        |             |
-| **Name**                                                                                                                              |             |
-| **What part of the lab did you personally<br/>contribute to (provide a link to the<br/>branch(es)), and what did you learn from it?** |             |
+| **Student ID**                                                                                                                        |    166483   |
+| **Name**                                                                                                                              |  Macharia Mark Muriithi   |
+| **What part of the lab did you personally<br/>contribute to (provide a link to the<br/>branch(es)), and what did you learn from it?** | I worked on the recommender endpoint. First I saved the model as a .joblib file and moved it to the file directory of the project, edited the api.py file to match the correct route of my joblib file. I then tested it in my terminal using the example CURL and also updated the recommender example in frontend/api_consumer_from_dev_flask.py. This is my branch: https://github.com/BI-course/smm-202604-c5/edit/feature/recommender  |
 
 ## Chosen Level of Difficulty
 
