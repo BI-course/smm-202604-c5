@@ -37,9 +37,9 @@
 
 | **Details**                                                                                                                           | **Comment** |
 |:--------------------------------------------------------------------------------------------------------------------------------------|:------------|
-| **Student ID**                                                                                                                        |             |
-| **Name**                                                                                                                              |             |
-| **What part of the lab did you personally<br/>contribute to (provide a link to the<br/>branch(es)), and what did you learn from it?** |             |
+| **Student ID**                                                                                                                        | 165916            |
+| **Name**                                                                                                                              | Richard Kituyi            |
+| **What part of the lab did you personally<br/>contribute to (provide a link to the<br/>branch(es)), and what did you learn from it?** | I worked on the clustering endpoint.I saved the model as a joblib file and moved it to the right file directory. I then edited api.py file to match the correct route of the joblib file. I then tested it is running well on the terminal and provided a cURL with my own example for testing purposes and it returned a clustering value of 3, confirming it is working as intended. I also updated the clustering example in frontend/api_consumer_from_dev_flask.py. The branch I used to make the changes was https://github.com/BI-course/smm-202604-c5/tree/feature/clustering. I learned that a model trained on Colab would not load locally so the training and serving environments must match, and I had to retrain in the project environment. I also learned that for K-Means the preprocessing (imputer and scaler) must be saved with the model and applied at prediction time, because the model alone cannot handle raw requests.     |
 
 **Member 5:**
 
